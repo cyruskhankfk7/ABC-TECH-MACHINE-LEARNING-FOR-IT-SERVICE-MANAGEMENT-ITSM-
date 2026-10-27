@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Auto-Tagging{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="eyebrow">TASK 3</div>
+    <h1>Priority & Department Auto-Tagging</h1>
+    <p>
+        Enter the ticket information below to automatically predict the ticket
+        priority and configuration-category/department proxy.
+    </p>
+</div>
+
+<!-- IMPORTANT NOTE -->
+<div class="callout">
+    <strong>Important:</strong>
+    <span>
+        <strong>CI_Cat is the notebook's department/configuration-category proxy
+        because there is no explicit Department column.</strong>
+    </span>
+</div>
+
+<form class="card form-card" method="post">
+
+    {% set sections = {
+        'Ticket Information': [
+            'CI_Subcat',
+            'WBS',
+            'Category'
+        ],
+        'Impact & Urgency': [
+            'Impact',
+            'Urgency'
+        ],
+        'Date & Time Features': [
+            'Open_Hour',
+            'Open_DayOfWeek',
+            'Open_Month',
+            'Open_Quarter',
+            'Open_IsWeekend'
+        ]
+    } %}
+
+    {% set numeric_fields = [
+        'Impact',
+        'Urgency',
+        'Open_Hour',
+        'Open_DayOfWeek',
+        'Open_Month',
+        'Open_Quarter',
+        'Open_IsWeekend'
+    ] %}
+
+    {% for title, fields in sections.items() %}
+
+    <section class="form-section">
+
+        <div class="section-title">
+            <div>
+                <div class="eyebrow">INPUT GROUP</div>
+                <h2>{{ title }}</h2>
+            </div>
+        </div>
+
+        <div class="form-grid">
+
+            {% for f in fields %}
+
+            <div class="field">
+
+                <label for="{{ f }}">{{ f }}</label>
+
+                {% if f in numeric_fields %}
+
+                    <input
+                        id="{{ f }}"
+                        name="{{ f }}"
+                        type="number"
+                        step="any"
+                        value="{{ form_values.get(f, '') }}"
+                        required
+                    >
+
+                {% else %}
+
+                    <input
+                        id="{{ f }}"
+                        name="{{ f }}"
+                        type="text"
+                        value="{{ form_values.get(f, '') }}"
+                        required
+                    >
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+    {% endfor %}
+
+    <button class="btn primary full" type="submit">
+        Run Auto-Tagging
+    </button>
+
+</form>
+
+
+{% if result %}
+
+<section class="grid-2 result-grid">
+
+    <!-- PRIORITY RESULT -->
+    <div class="card result-card">
+
+        <div class="result-label">
+            PREDICTED PRIORITY
+        </div>
+
+        <div class="result-main">
+            {{ result.priority }}
+        </div>
+
+        <div class="mini-grid">
+
+            <div>
+                <span>Model</span>
+                <strong>
+                    {{ result.priority_model }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DEPARTMENT RESULT -->
+    <div class="card result-card">
+
+        <div class="result-label">
+            PREDICTED DEPARTMENT / CI CATEGORY
+        </div>
+
+        <div class="result-main">
+            {{ result.department }}
+        </div>
+
+        <div class="mini-grid">
+
+            <div>
+                <span>Model</span>
+                <strong>
+                    {{ result.department_model }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- PROXY EXPLANATION -->
+<div class="callout result-note">
+
+    <strong>Department Prediction Note:</strong>
+
+    <p>
+        <strong>CI_Cat is the notebook's department/configuration-category
+        proxy because there is no explicit Department column.</strong>
+    </p>
+
+    <p>
+        Therefore, the department result shown above represents the predicted
+        <strong>CI_Cat</strong> category rather than a separate Department field.
+    </p>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

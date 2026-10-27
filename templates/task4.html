@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}Task 4 • RFC & Asset Risk{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="eyebrow">TASK 4</div>
+
+    <h1>RFC & Asset Failure Risk</h1>
+
+    <p>
+        Enter the exact 45 current-row and historical features used by
+        the saved Task 4 model packages.
+    </p>
+</div>
+
+
+<div class="callout">
+    <strong>Important:</strong>
+    Several Task 4 fields are historical features engineered from
+    previous incidents, RFC events and failure signals.
+    For a production system, these should be calculated automatically
+    from historical ITSM data.
+</div>
+
+
+<form class="card form-card" method="post">
+
+    {% set sections = {
+
+        'Asset & Ticket Identity': [
+            'CI_Name',
+            'CI_Cat',
+            'CI_Subcat',
+            'CI_Prefix',
+            'WBS',
+            'WBS_Prefix',
+            'Category',
+            'Alert_Status'
+        ],
+
+        'Current Ticket': [
+            'Impact',
+            'Urgency',
+            'Priority',
+            'number_cnt'
+        ],
+
+        'Calendar': [
+            'Open_Year',
+            'Open_Month',
+            'Open_Day',
+            'Open_DayOfWeek',
+            'Open_Hour',
+            'Open_Quarter',
+            'Open_WeekOfYear',
+            'Is_Weekend',
+            'Hour_Sin',
+            'Hour_Cos',
+            'Month_Sin',
+            'Month_Cos',
+            'DayOfWeek_Sin',
+            'DayOfWeek_Cos'
+        ],
+
+        'CI History': [
+            'CI_Prior_Incident_Count',
+            'CI_Prior_RFC_Count',
+            'CI_Prior_RFC_Rate',
+            'CI_Prior_Change_Count',
+            'CI_Prior_Failure_Count',
+            'CI_Prior_Failure_Rate',
+            'CI_Days_Since_Last_Incident',
+            'CI_Incidents_30D',
+            'CI_Incidents_90D',
+            'CI_RFC_90D',
+            'CI_Failure_90D',
+            'CI_Prior_Avg_Impact',
+            'CI_Prior_Avg_Urgency'
+        ],
+
+        'Category History': [
+            'Category_Prior_Incident_Count',
+            'Category_Prior_RFC_Count',
+            'Category_Prior_RFC_Rate'
+        ],
+
+        'WBS History': [
+            'WBS_Prior_Incident_Count',
+            'WBS_Prior_RFC_Count',
+            'WBS_Prior_RFC_Rate'
+        ]
+
+    } %}
+
+
+    {% for title, fields in sections.items() %}
+
+    <section class="form-section">
+
+        <div class="section-title">
+
+            <div>
+                <div class="eyebrow">INPUT GROUP</div>
+                <h2>{{ title }}</h2>
+            </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+            {% for f in fields %}
+
+            <div class="field">
+
+                <label for="{{ f }}">
+                    {{ f }}
+                </label>
+
+
+                {% if f in [
+                    'Impact',
+                    'Urgency',
+                    'Priority',
+                    'number_cnt',
+                    'Open_Year',
+                    'Open_Month',
+                    'Open_Day',
+                    'Open_DayOfWeek',
+                    'Open_Hour',
+                    'Open_Quarter',
+                    'Open_WeekOfYear',
+                    'Is_Weekend',
+                    'Hour_Sin',
+                    'Hour_Cos',
+                    'Month_Sin',
+                    'Month_Cos',
+                    'DayOfWeek_Sin',
+                    'DayOfWeek_Cos',
+                    'CI_Prior_Incident_Count',
+                    'CI_Prior_RFC_Count',
+                    'CI_Prior_RFC_Rate',
+                    'CI_Prior_Change_Count',
+                    'CI_Prior_Failure_Count',
+                    'CI_Prior_Failure_Rate',
+                    'CI_Days_Since_Last_Incident',
+                    'CI_Incidents_30D',
+                    'CI_Incidents_90D',
+                    'CI_RFC_90D',
+                    'CI_Failure_90D',
+                    'CI_Prior_Avg_Impact',
+                    'CI_Prior_Avg_Urgency',
+                    'Category_Prior_Incident_Count',
+                    'Category_Prior_RFC_Count',
+                    'Category_Prior_RFC_Rate',
+                    'WBS_Prior_Incident_Count',
+                    'WBS_Prior_RFC_Count',
+                    'WBS_Prior_RFC_Rate'
+                ] %}
+
+                <input
+                    id="{{ f }}"
+                    name="{{ f }}"
+                    type="number"
+                    step="any"
+                    value="{{ form_values.get(f, '') }}"
+                    required
+                >
+
+                {% else %}
+
+                <input
+                    id="{{ f }}"
+                    name="{{ f }}"
+                    type="text"
+                    value="{{ form_values.get(f, '') }}"
+                    required
+                >
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+    {% endfor %}
+
+
+    <button
+        class="btn primary full"
+        type="submit"
+    >
+        Run RFC & Asset Risk Analysis
+    </button>
+
+</form>
+
+
+{% if result %}
+
+<section class="grid-2 result-grid">
+
+    <!-- =========================
+         RFC RESULT
+    ========================== -->
+
+    <div class="card result-card">
+
+        <div class="result-label">
+            RFC PREDICTION
+        </div>
+
+        <div class="result-main">
+            {{ result.rfc_label }}
+        </div>
+
+
+        <div class="mini-grid">
+
+            <div>
+                <span>
+                    Threshold
+                </span>
+
+                <strong>
+                    {{ result.rfc_threshold }}
+                </strong>
+            </div>
+
+
+            <div>
+                <span>
+                    Model
+                </span>
+
+                <strong>
+                    {{ result.rfc_model }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         ASSET RISK RESULT
+    ========================== -->
+
+    <div class="card result-card">
+
+        <div class="result-label">
+            ASSET RISK
+        </div>
+
+        <div class="result-main">
+            {{ result.asset_label }}
+        </div>
+
+
+        <div class="mini-grid">
+
+            <div>
+                <span>
+                    Threshold
+                </span>
+
+                <strong>
+                    {{ result.asset_threshold }}
+                </strong>
+            </div>
+
+
+            <div>
+                <span>
+                    Model
+                </span>
+
+                <strong>
+                    {{ result.asset_model }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <p class="note">
+            The asset-risk model evaluates the configured future
+            risk horizon of {{ result.horizon_days }} days.
+        </p>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}ABC Tech ITSM Intelligence{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <div class="eyebrow">MACHINE LEARNING FOR ITSM</div>
+    <h1>Turn incident data into <span>operational decisions.</span></h1>
+    <p>One Flask dashboard for priority-risk prediction, incident-volume forecasting, auto-tagging, and RFC / asset-risk analysis.</p>
+    <div class="hero-actions">
+      <a class="btn primary" href="{{ url_for('task1') }}">Analyze an Incident</a>
+      <a class="btn secondary" href="{{ url_for('forecast') }}">Open Forecasting</a>
+    </div>
+  </div>
+  <div class="hero-panel">
+    <div class="metric-tile"><span>Task 1</span><strong>XGBoost</strong><small>High Priority</small></div>
+    <div class="metric-tile"><span>Task 2</span><strong>Drift / Extra Trees</strong><small>Incident Forecast</small></div>
+    <div class="metric-tile"><span>Task 3</span><strong>Auto Tagging</strong><small>Priority + CI Category</small></div>
+    <div class="metric-tile"><span>Task 4</span><strong>Risk Models</strong><small>RFC + Asset Failure</small></div>
+  </div>
+</section>
+
+<section class="grid-4">
+  <a class="card feature-card" href="{{ url_for('task1') }}"><div class="icon">P1</div><h3>High Priority</h3><p>Predict the notebook's High_Priority target from ticket creation features.</p></a>
+  <a class="card feature-card" href="{{ url_for('forecast') }}"><div class="icon">↗</div><h3>Forecasting</h3><p>Upload your ~10 MB incident CSV and generate monthly, quarterly and annual forecasts.</p></a>
+  <a class="card feature-card" href="{{ url_for('autotag') }}"><div class="icon">AI</div><h3>Auto Tagging</h3><p>Predict ticket priority and the CI_Cat department/configuration proxy.</p></a>
+  <a class="card feature-card" href="{{ url_for('task4') }}"><div class="icon">R</div><h3>RFC & Asset Risk</h3><p>Use the 45 notebook features to estimate RFC and future asset-failure signals.</p></a>
+</section>
+
+<section class="card status-card">
+  <div class="section-title"><div><div class="eyebrow">MODEL STATUS</div><h2>Saved model files</h2></div></div>
+  <div class="status-grid">
+    {% for key, filename in model_files.items() %}
+      {% if key != 'autotag_config' %}
+      <div class="status-item"><span class="dot {% if model_store.has(key) %}ok{% else %}bad{% endif %}"></span><div><strong>{{ filename }}</strong><small>{% if model_store.has(key) %}Loaded{% else %}Missing{% endif %}</small></div></div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

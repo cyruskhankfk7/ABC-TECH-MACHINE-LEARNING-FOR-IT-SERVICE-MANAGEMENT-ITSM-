@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Task 2 • Incident Forecasting{% endblock %}
+{% block head %}<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>{% endblock %}
+{% block content %}
+<div class="page-header"><div class="eyebrow">TASK 2 • FORECASTING</div><h1>Incident Volume Forecasting</h1><p>Upload the ABC Tech incident CSV. The app aggregates rows by <strong>Open_Time</strong> at monthly frequency, matching the notebook's forecasting setup.</p></div>
+<form class="card upload-card" method="post" enctype="multipart/form-data">
+  <div class="upload-grid">
+    <div class="field"><label>Incident CSV</label><input type="file" name="csv_file" accept=".csv" required></div>
+    <div class="field"><label>Forecast model</label><select name="forecast_model"><option value="extra_trees">Extra Trees</option><option value="drift">Drift</option></select></div>
+    <div class="field"><label>Date interpretation</label><select name="date_format"><option value="dayfirst">DD/MM/YYYY (notebook setting)</option><option value="monthfirst">MM/DD/YYYY</option></select></div>
+    <div class="field"><label>Forecast horizon (months)</label><input type="number" name="horizon" min="1" max="24" value="12"></div>
+  </div>
+  <button class="btn primary" type="submit">Generate Forecast</button>
+</form>
+
+{% if upload_summary %}
+<div class="grid-4"><div class="card metric-tile"><span>Rows</span><strong>{{upload_summary.rows|num}}</strong><small>{{upload_summary.filename}}</small></div><div class="card metric-tile"><span>Monthly history</span><strong>{{upload_summary.months}}</strong><small>{{upload_summary.first_month}} → {{upload_summary.last_month}}</small></div><div class="card metric-tile"><span>Expected annual demand</span><strong>{{result.annual_total|num}}</strong><small>forecast horizon total</small></div><div class="card metric-tile"><span>Peak month</span><strong>{{result.peak_month}}</strong><small>{{result.peak_value|num}} incidents</small></div></div>
+{% endif %}
+
+{% if result %}
+<section class="card chart-card"><div class="section-title"><div><div class="eyebrow">FORECAST OUTPUT</div><h2>{{result.model_name}}</h2></div><span class="badge">Promising prototype</span></div><div id="forecastChart" class="chart"></div></section>
+<section class="grid-2"><div class="card"><div class="eyebrow">MONTHLY FORECAST</div><div class="table-wrap"><table><thead><tr><th>Month</th><th>Forecast Incidents</th></tr></thead><tbody>{% for row in result.monthly_table.to_dict('records') %}<tr><td>{{row['Month']}}</td><td>{{row['Forecast Incidents']|num}}</td></tr>{% endfor %}</tbody></table></div></div>
+<div class="card"><div class="eyebrow">QUARTERLY FORECAST</div><div class="table-wrap"><table><thead><tr><th>Quarter</th><th>Forecast Incidents</th></tr></thead><tbody>{% for row in result.quarterly_table.to_dict('records') %}<tr><td>{{row['Quarter']}}</td><td>{{row['Forecast Incidents']|num}}</td></tr>{% endfor %}</tbody></table></div></div></section>
+<section class="card info-card"><div class="eyebrow">MODEL STRENGTHS & WEAKNESSES</div><h2>{{result.model_name}}</h2><div class="grid-2"><div><h3>Strengths</h3><ul>{% for x in forecast_info['drift']['strengths'] if result.model_name == 'Drift' %}<li>{{x}}</li>{% endfor %}{% for x in forecast_info['extra_trees']['strengths'] if result.model_name == 'Extra Trees' %}<li>{{x}}</li>{% endfor %}</ul></div><div><h3>Weaknesses</h3><ul>{% for x in forecast_info['drift']['weaknesses'] if result.model_name == 'Drift' %}<li>{{x}}</li>{% endfor %}{% for x in forecast_info['extra_trees']['weaknesses'] if result.model_name == 'Extra Trees' %}<li>{{x}}</li>{% endfor %}</ul></div></div>{% for n in result.notes %}<p class="note">{{n}}</p>{% endfor %}</section>
+{% else %}
+<section class="grid-2"><div class="card info-card"><div class="eyebrow">DRIFT REFERENCE</div><h2>Simple trend baseline</h2><p>Rolling-CV WAPE: <strong>68.21%</strong>. Holdout WAPE: <strong>11.70%</strong>. The notebook notes that Drift is highly interpretable but unstable across historical validation windows.</p></div><div class="card info-card"><div class="eyebrow">EXTRA TREES REFERENCE</div><h2>Nonlinear short-term model</h2><p>Holdout MAE: <strong>574</strong>, RMSE: <strong>715</strong>, WAPE: <strong>7.84%</strong>. The notebook describes this as stronger on the current unseen holdout but still a prototype requiring monitoring and retraining.</p></div></section>
+{% endif %}
+
+{% if chart_payload %}
+<script>
+const labels={{ chart_payload.labels|tojson }};
+const forecast={{ chart_payload.forecast|tojson }};
+Plotly.newPlot('forecastChart', [{x:labels,y:forecast,type:'scatter',mode:'lines+markers',line:{width:3},marker:{size:7}}], {margin:{l:50,r:25,t:20,b:50},paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',xaxis:{title:'Month'},yaxis:{title:'Forecasted Incidents'},hovermode:'x unified'} , {responsive:true,displayModeBar:false});
+</script>
+{% endif %}
+{% endblock %}

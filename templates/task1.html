@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}High Priority Prediction{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="eyebrow">TASK 1</div>
+    <h1>High Priority Ticket Prediction</h1>
+    <p>Enter the values below.</p>
+</div>
+
+
+<form class="card form-card" method="post">
+
+    {% set sections = {
+        'Ticket Information': [
+            'CI_Cat',
+            'CI_Subcat',
+            'WBS',
+            'Category',
+            'KB_number',
+            'Alert_Status'
+        ],
+
+        'Impact & Interactions': [
+            'Impact',
+            'Urgency',
+            'number_cnt',
+            'No_of_Related_Interactions'
+        ],
+
+        'Date & Time': [
+            'Open_Year',
+            'Open_Month',
+            'Open_DayOfWeek',
+            'Open_Hour',
+            'Is_Weekend'
+        ]
+    } %}
+
+
+    {% set numeric_fields = [
+        'Impact',
+        'Urgency',
+        'number_cnt',
+        'No_of_Related_Interactions',
+        'Open_Year',
+        'Open_Month',
+        'Open_DayOfWeek',
+        'Open_Hour',
+        'Is_Weekend'
+    ] %}
+
+
+    {% for title, fields in sections.items() %}
+
+    <section class="form-section">
+
+        <div class="section-title">
+            <div>
+                <div class="eyebrow">INPUT GROUP</div>
+                <h2>{{ title }}</h2>
+            </div>
+        </div>
+
+
+        <div class="form-grid">
+
+            {% for f in fields %}
+
+            <div class="field">
+
+                <label for="{{ f }}">{{ f }}</label>
+
+                {% if f in numeric_fields %}
+
+                    <input
+                        id="{{ f }}"
+                        name="{{ f }}"
+                        type="number"
+                        step="any"
+                        value="{{ form_values.get(f, '') }}"
+                        required
+                    >
+
+                {% else %}
+
+                    <input
+                        id="{{ f }}"
+                        name="{{ f }}"
+                        type="text"
+                        value="{{ form_values.get(f, '') }}"
+                        required
+                    >
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+    {% endfor %}
+
+
+    <button class="btn primary full" type="submit">
+        Predict High Priority
+    </button>
+
+</form>
+
+
+{% if result %}
+
+<section class="grid-2 result-grid">
+
+    <div class="card result-card">
+
+        <div class="result-label">
+            PREDICTION
+        </div>
+
+        <div class="result-main">
+            {{ result.label }}
+        </div>
+
+        <div class="mini-grid">
+
+            <div>
+                <span>Model</span>
+                <strong>
+                    {{ result.model }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+{% endblock %}
