@@ -1,3 +1,6 @@
+Deployed Link GCP https://abc-tech-itsm-834797520500.asia-south1.run.app/
+
+
 # ABC Tech ITSM Intelligence – Flask App
 
 This Flask app wraps the saved ABC Tech ML models from the supplied Colab notebook into one web application.
